@@ -1,43 +1,57 @@
+import java.net.Inet4Address;
+import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Objects;
 import java.util.Scanner;
 
 public class Resolver {
     public static void main(String[] args) {
-        // Comprobacion si salir es true terminar
-        boolean salir = false;
-        while (!salir)
-                try {
 
-                    Scanner sc = new Scanner(System.in);
-                    String url = sc.nextLine();
+        try {
+            InetAddress yo = InetAddress.getLocalHost();
+            System.out.println("Mi equipo: " + yo.getHostName());
+            System.out.println("Mi IP --> " + yo.getHostAddress());
+            System.out.println("----------------------------------------");
+        } catch (UnknownHostException e) {
+            System.err.println("No se pudo obtener la información local: " + e.getMessage());
+        }
 
-                    //si url es salir romper el bucle
 
-                    if (Objects.equals(url, "salir")){
+        Scanner sc = new Scanner(System.in);
 
-                        break;
-                }
-                    //se coge la ip de la url pasasda
-                    InetAddress web = InetAddress.getByName(url);
-                    System.out.println(web.getHostName() + " -> " + web.getHostAddress());
+        while (true) {
 
-                    for (InetAddress ip : InetAddress.getAllByName("google.com")) {
-                        System.out.println("  " + ip.getHostAddress()); // IPv4 e IPv6
+            System.out.print("\nIntroduce un dominio (o 'salir' para terminar): ");
+            String url = sc.nextLine().trim();
+
+            if (url.equalsIgnoreCase("salir")) {
+                break;
+            }
+
+            if (url.isEmpty()) {
+                continue;
+            }
+
+            try {
+                InetAddress web = InetAddress.getByName(url);
+                System.out.println("Principal: " + web.getHostName() + " -> " + web.getHostAddress());
+                System.out.println("Todas las direcciones asociadas:");
+
+ 
+                for (InetAddress ip : InetAddress.getAllByName(url)) {
+               
+                    if (ip instanceof Inet4Address) {
+                        System.out.println("  [IPv4] " + ip.getHostAddress());
+                    } else if (ip instanceof Inet6Address) {
+                        System.out.println("  [IPv6] " + ip.getHostAddress());
                     }
-
-
-                    InetAddress yo = InetAddress.getLocalHost();
-                    System.out.println("Mi equipo: " + yo.getHostName());
-
-                    System.out.println("Mi ip --> " + InetAddress.getLocalHost().getHostAddress());
-
-
-                } catch (UnknownHostException e) {
-                    System.err.println("No se pudo resolver: " + e.getMessage());
                 }
+            } catch (UnknownHostException e) {
+                System.err.println("No se pudo resolver '" + url + "': " + e.getMessage());
+            }
+        }
 
+        sc.close();
         System.out.println("Fin del bucle");
     }
 }
